@@ -5,9 +5,13 @@
 #include <stdlib.h>
 #include <time.h>
 
-//M：65635365625235325265635365615135315125235325215135315165635365625235325265635365605035305025235325205035305015135315125235325215135315105035305025235325205035305065635356252353252656353656151353151252353252151353151656353656252353252656353454
-//G：254355153256235251056355461151336154151034156110550150052030256256132252350325112052333054055231255051336154150665264150266506012264453605631520256431054354632404350334153250253251352352045150130156213436252353223135051260513356201524514343432
+char M[] = "65635365625235325265635365615135315125235325215135315165635365625235325265635365605035305025235325205035305015135315125235325215135315105035305025235325205035305065635356252353252656353656151353151252353252151353151656353656252353252656353454";
+char G[] = "254355153256235251056355461151336154151034156110550150052030256256132252350325112052333054055231255051336154150665264150266506012264453605631520256431054354632404350334153250253251352352045150130156213436252353223135051260513356201524514343432";
+char B[] = "22222222213333333331";
 char matrix[10][10];
+int currentRow = 0;
+int currentCol = 0;
+int score = 0;
 void initMatrix()
 {
     srand(int(time(0)));
@@ -39,19 +43,121 @@ void printMatrix()
         printf("\n\r");
     }
 }
-int move(int dir)
+int randMove()
 {
-    //0=向北移动，1=向南移动，2=向东移动，3=向西移动，4=不动，5=捡拾罐子，6=随机移动
+    int step = rand() % 6;
+    while (step == 0 && currentRow == 0)
+    {
+        step = rand() % 6;
+    }
+    while (step == 1 && currentRow == 9)
+    {
+        step = rand() % 6;
+    }
+    while (step == 2 && currentCol == 9)
+    {
+        step = rand() % 6;
+    }
+    while (step == 3 && currentRow == 0)
+    {
+        step = rand() % 6;
+    }
+    return step;
+}
+void move(int dir)
+{
+    //0=向北移动，1=向南移动，2=向东移动，3=向西移动，4=不动，5=捡拾罐子，6=随机移动;
     if (dir > 6 || dir < 0)
-        return 0;
+        return;
+    if (dir == 6)
+        dir = randMove();
+    switch (dir)
+    {
+    case 0:
+        currentRow--;
+        break;
+    case 1:
+        currentRow++;
+        break;
+    case 2:
+        currentCol++;
+        break;
+    case 3:
+        currentCol--;
+        break;
+    case 4:
+        break;
+    case 5:
+        if (matrix[currentRow][currentCol] == 1)
+            score += 10;
+        break;
+    }
+    if (currentRow < 0)
+        currentRow = 0;
+    if (currentRow > 9)
+        currentRow = 9;
+    if (currentCol < 0)
+        currentCol = 0;
+    if (currentCol > 9)
+        currentCol = 9;
+}
 
-        return 1;
+void testM()
+{
+    currentCol = 0;
+    currentRow = 0;
+    score = 0;
+    for (int i = 0;i < 243;i++)
+    {
+        int s = M[i] - '0';
+        move(s);
+    }
+    printf("\n\rM mehtod score:%d", score);
+}
+void testG()
+{
+    currentCol = 0;
+    currentRow = 0;
+    score = 0;
+    for (int i = 0;i < 243;i++)
+    {
+        int s = G[i] - '0';
+        move(s);
+    }
+    printf("\n\rG mehtod score:%d", score);
+}
+void testB()
+{
+    currentCol = 0;
+    currentRow = 0;
+    score = 0;
+    for (int t = 0;t < 5;t++)
+    {
+        for (int i = 0;i < 21;i++)
+        {
+            move(5);
+            int val = B[i] - '0';
+            move(val);
+        }
+    }
 }
 int main()
 {
     std::cout << "Hello World!\n";
-    initMatrix();
-    printMatrix();
+    int totalM = 0;
+    int totalG = 0;
+    int totalB = 0;
+    for (int k = 0;k < 100000;k++)
+    {
+        initMatrix();
+        testM();
+        totalM += score;
+        testG();
+        totalG += score;
+        testB();
+        totalB += score;
+    }
+    printf("\n\rM:%d    G:%d    B:%d", totalM / 100000, totalG / 100000,totalB/100000);
 }
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
